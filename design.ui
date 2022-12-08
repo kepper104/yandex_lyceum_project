@@ -28,7 +28,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>../../../Downloads/document.png</normaloff>../../../Downloads/document.png</iconset>
+      <normaloff>document.png</normaloff>document.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -51,7 +51,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>../../../Downloads/folder.png</normaloff>../../../Downloads/folder.png</iconset>
+      <normaloff>folder.png</normaloff>folder.png</iconset>
     </property>
     <property name="iconSize">
      <size>
