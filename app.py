@@ -43,8 +43,8 @@ class App(QMainWindow):
             None
         """
 
-        reader = Reader(name)
-        res = reader.printout()
+        reader = Editor(name)
+        res = reader.readfile()
         self.tableWidget.setColumnCount(16)
         self.tableWidget.setRowCount(len(res[1]))
         self.tableWidget.setHorizontalHeaderLabels(res[0])
@@ -227,9 +227,9 @@ class Editor:
 
 
 if __name__ == '__main__':
-    editor = Editor("data.txt")
-    editor.printout()
-    # app = QApplication(sys.argv)
-    # ex = App()
-    # ex.show()
-    # sys.exit(app.exec())
+    # editor = Editor("data.txt")
+    # editor.printout()
+    app = QApplication(sys.argv)
+    ex = App()
+    ex.show()
+    sys.exit(app.exec())
