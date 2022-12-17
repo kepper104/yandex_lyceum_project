@@ -1,13 +1,15 @@
 import sys
 
-from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QFileDialog
+import tab
+from PyQt5 import uic, QtCore
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QFileDialog, QTableWidget
+from PyQt5.QtWidgets import QWidget
 
 
 def next_line():
     cur = 0
     while True:
-        yield (str(hex(cur))[2:].rjust(5, '0').ljust(6, '0'))
+        yield str(hex(cur))[2:].rjust(5, '0').ljust(6, '0')
         cur += 1
 
 
@@ -30,34 +32,20 @@ class App(QMainWindow):
         with open("empty.txt", 'w') as f:
             pass
         uic.loadUi('design.ui', self)
-        self.loadfile()
-
-    def loadfile(self, name='empty.txt'):
-        """
-        Loads file hex view, defaults to empty file created in init.
-
-        Parameters:
-            self
-            name (str): name of the file to open
-        Returns:
-            None
-        """
-
-        reader = Editor(name)
-        res = reader.readfile()
-        self.tableWidget.setColumnCount(16)
-        self.tableWidget.setRowCount(len(res[1]))
-        self.tableWidget.setHorizontalHeaderLabels(res[0])
-        self.tableWidget.resizeColumnsToContents()
-        self.tableWidget.setVerticalHeaderLabels(res[1])
-
-        for index, i in enumerate(res[2]):
-            for jndex, j in enumerate(i.split()):
-                self.tableWidget.setItem(index, jndex, QTableWidgetItem(j))
 
         self.pushButton_2.clicked.connect(self.openfile)
-        print()
-        print(res[2])
+        self.pushButton.clicked.connect(self.add_tab)
+        self.tabWidget.tabCloseRequested.connect(lambda index: self.tabWidget.removeTab(index))
+
+        self.tabWidget.removeTab(0)
+
+        example_tab = tab.ExampleTab()
+
+        self.tabWidget.addTab(example_tab, "Welcome to Yandex Hexditor")
+        self.tabWidget.removeTab(0)
+
+
+
 
     def openfile(self):
         """
@@ -70,13 +58,17 @@ class App(QMainWindow):
         """
 
         file_name = QFileDialog.getOpenFileName(self, 'Select file', '')[0]
-        self.loadfile(file_name)
+        self.add_tab(file_name=file_name, tab_name=file_name)
 
-    def stuff(self):
-        self.loadfile()
+    def add_tab(self, tab_name="New File.txt", file_name="empty.txt"):
+        new_tab = tab.TabForm()
+        new_tab.loadfile(name=file_name)
+
+        tab_real_name = tab_name.split("/")[-1]
+        self.tabWidget.addTab(new_tab, tab_real_name)
 
 
-class Editor:
+class File:
     """
     Main editor class, handles reading files, editing files ...
     """
@@ -224,6 +216,7 @@ class Editor:
         f.close()
 
         return headers_h, headers_v, nums
+    # def createfile(self):
 
 
 if __name__ == '__main__':
