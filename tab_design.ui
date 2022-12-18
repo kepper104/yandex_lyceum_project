@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1025</width>
-    <height>489</height>
+    <width>1191</width>
+    <height>493</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,23 @@
     <rect>
      <x>0</x>
      <y>10</y>
-     <width>711</width>
+     <width>620</width>
+     <height>471</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Courier New</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tableWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>630</x>
+     <y>10</y>
+     <width>431</width>
      <height>471</height>
     </rect>
    </property>

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1048</width>
+    <width>1278</width>
     <height>614</height>
    </rect>
   </property>
@@ -28,7 +28,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>document.png</normaloff>document.png</iconset>
+      <normaloff>icons/document.png</normaloff>icons/document.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -51,7 +51,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>folder.png</normaloff>folder.png</iconset>
+      <normaloff>icons/folder.png</normaloff>icons/folder.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -65,9 +65,12 @@
      <rect>
       <x>10</x>
       <y>60</y>
-      <width>1031</width>
+      <width>1251</width>
       <height>511</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
     </property>
     <property name="currentIndex">
      <number>1</number>
@@ -115,7 +118,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>floppy-disk.png</normaloff>floppy-disk.png</iconset>
+      <normaloff>icons/floppy-disk.png</normaloff>icons/floppy-disk.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -130,7 +133,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1048</width>
+     <width>1278</width>
      <height>21</height>
     </rect>
    </property>
