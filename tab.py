@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget, QTableWidgetItem, QLabel
+from PyQt5.QtWidgets import QWidget, QTableWidgetItem, QLabel, QErrorMessage, QMessageBox
 from app import File
 
 def next_line():
@@ -11,6 +11,16 @@ def next_line():
 
 class TabForm(QWidget):
     def __init__(self, file_name='empty.txt', app=None):
+        """
+        Inits new window, all variables and creates file instance it will be working on.
+
+        Parameters:
+            self
+            file_name (str): name of file bound to this tab
+            app (App): parent app window
+        Returns:
+            None
+        """
         super().__init__()
         self.isExampleTab = False
         self.is_loading = False
@@ -20,6 +30,14 @@ class TabForm(QWidget):
         self.loadfile()
 
     def setupUi(self):
+        """
+        Creates both tables and sets all their attributes using code.
+
+        Parameters:
+            self
+        Returns:
+            None
+        """
         self.tableWidget = QtWidgets.QTableWidget(self)
         self.tableWidget.setGeometry(QtCore.QRect(0, 10, 700, 471))
         font = QtGui.QFont()
@@ -55,9 +73,6 @@ class TabForm(QWidget):
         Returns:
             None
         """
-        print("load")
-
-        # res = self.file.readfile()
         headers_h, cur_cells, letter_cells = self.file.get_data()
         self.tableWidget.setColumnCount(16)
         headers_len = len(cur_cells)
@@ -88,32 +103,48 @@ class TabForm(QWidget):
 
         print("loaded")
     def reload_file(self):
-        print("reload")
-
-        # res = self.file.readfile()
         headers_h, cur_cells, letter_cells = self.file.get_data()
-        print("wow:", letter_cells)
-        print("reload")
+
         self.is_loading = True
         for row, i in enumerate(cur_cells):
             for col, j in enumerate(i):
                 self.tableWidget.setItem(row, col, QTableWidgetItem(j))
-        print("here")
-
         for index, i in enumerate(letter_cells):
             self.tableWidget_2.setItem(index // 16, index % 16, QTableWidgetItem(i))
         self.is_loading = False
-        print("reloaded")
     def on_cell_edited(self, row, col):
         if not self.is_loading:
             new_item = self.tableWidget.item(row, col).text()
-            self.file.change_file(row, col, new_item)
-            self.reload_file()
+            try:
+
+                from_hex = int(new_item, 16)
+                item = self.file.cur_cells[row][col]
+                self.file.change_file(row, col, new_item)
+                self.reload_file()
+            except IndexError:
+                self.show_error("Cell position is not valid!", "Changes will not be saved", "Input Error!")
+                self.file.expand_cells(row, col)
+                print(self.file.cur_cells)
+                self.file.change_file(row, col, new_item)
+                self.reload_file()
+                # self.reload_file()
+            except ValueError:
+                self.show_error("You hex number is not valid!", "Reverting to previous cell value", "Input Error!")
+                self.tableWidget.setItem(row, col, QTableWidgetItem(self.file.cur_cells[row][col]))
+
+
+
     def on_cell_clicked(self, row, col):
         self.tableWidget.setCurrentCell(row, col)
         self.tableWidget_2.setCurrentCell(row, col)
         print(row, col)
-
+    def show_error(self, text, inf_text, title):
+        self.error = QMessageBox()
+        self.error.setIcon(QMessageBox.Critical)
+        self.error.setText(text)
+        self.error.setInformativeText(inf_text)
+        self.error.setWindowTitle(title)
+        self.error.show()
 
 class ExampleTab(QWidget):
     def __init__(self):

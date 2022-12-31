@@ -1,7 +1,6 @@
 **TODO**
 
-- Add letter change live update
-- Decide what to do with creating new files
+- Implement generating new cells
 - Document everything
 - Presentation
 - Compile into exe
