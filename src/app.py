@@ -2,16 +2,15 @@ import sys
 
 import tab
 from PyQt5 import uic, QtCore
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QFileDialog, QTableWidget
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from utils import next_line, show_error
 
-def next_line():
-    cur = 0
-    while True:
-        yield str(hex(cur))[2:].rjust(5, '0').ljust(6, '0')
-        cur += 1
+if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+    QApplication.setAttribute(
+        QtCore.Qt.AA_EnableHighDpiScaling, True)
 
-
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
 class App(QMainWindow):
     """
@@ -20,7 +19,7 @@ class App(QMainWindow):
 
     def __init__(self):
         """
-        Is called only on program start and loads ui from design.ui
+        Loads ui from design.ui, creates home tab and connects all buttons
         Parameters:
             self
         Returns:
@@ -28,20 +27,23 @@ class App(QMainWindow):
         """
 
         super().__init__()
-        # with open("empty.txt", 'w') as f:
-        #     pass
-        uic.loadUi('design.ui', self)
+        uic.loadUi('../designs/design.ui', self)
+
         self.cur_tab_index = 0
-        self.pushButton_2.clicked.connect(self.openfile)
+
         self.pushButton.clicked.connect(self.create_file)
+        self.pushButton_2.clicked.connect(self.openfile)
         self.pushButton_3.clicked.connect(self.save_file)
+
         self.tabWidget.tabCloseRequested.connect(self.close_tab)
         self.tabWidget.currentChanged.connect(self.change_selected_tab)
-        self.tabWidget.removeTab(0)
 
         example_tab = tab.ExampleTab()
 
         self.tabWidget.addTab(example_tab, "Welcome!")
+
+        # By default, is created with 2 tabs already open, so kill them
+        self.tabWidget.removeTab(0)
         self.tabWidget.removeTab(0)
 
         self.tabs = []
@@ -125,11 +127,19 @@ class File:
         self.cur_cells.extend(self.cells)
 
     def get_data(self):
+        """
+        Basic File getter, returns file's data
+
+        Parameters:
+            self
+        Returns:
+            self.headers
+        """
         return self.headers_h, self.cur_cells, self.letter_cells
 
     def printout(self):
         """
-        Legacy function from a cli hex reader, prints out hex view of file to terminal
+        Legacy function from a cli hex reader, prints out hex view of file to terminal, don't look here...
 
         Parameters:
             self
@@ -211,8 +221,6 @@ class File:
 
         # reading file symbol by symbol
         for i in f.read():
-            # print(i)
-            # input()
             letter = str(hex(i))[2:].rjust(2, '0')
             cur_line += letter + " "
             # first 15 symbols are read as usual
@@ -229,10 +237,8 @@ class File:
                         self.letter_cells.append(letter)
                     else:
                         self.letter_cells.append('.')
-
                 collected = ''
                 count = 0
-        print(self.letter_cells)
         cells.append(cur_line)
 
         for letter in collected:
@@ -250,57 +256,59 @@ class File:
         self.cells = cells
 
     def change_file(self, row, col, new_item):
+        """
+        Changes file's data
 
-        print(self.cur_cells[row][col])
-
-        print("updating: ")
-        print(self.cur_cells)
-        print(self.cur_cells[row][col])
+        Parameters:
+            self
+        Returns:
+            None
+        """
         self.app.change_tab_status(self.file_name, saved=False)
         self.cur_cells[row][col] = new_item
-        print(self.cur_cells[row][col])
         new_letters = []
+
         for i in self.cur_cells:
             for j in i:
                 if j == '':
-                    # print("herrr")
-                    new_letters.append(' ')
                     continue
-                # print("hey", j)
                 letter = chr(int(j, 16))
                 if letter.isprintable():
                     new_letters.append(letter)
                 else:
                     new_letters.append('.')
+
         self.letter_cells.clear()
         self.letter_cells.extend(new_letters)
-        # print("new let", new_letters)
-        # print("updated cur_cells")
-        print(self.cur_cells)
-        # print("Inside", row, col, self.cells[row][col])
 
     def save(self):
         cells = self.cur_cells
         all_cells = []
-        # print(cells)
+
         for i in cells:
             for el in i:
                 if el == '':
                     continue
                 all_cells.append((int(el, 16)))
-        # print(all_cells)
-        # try:
-        #     with open(self.file_name, 'wb') as f:
-        #         f.write(bytes(all_cells))
-        # except ValueError:
+
+        try:
+            with open(self.file_name, 'wb') as f:
+                f.write(bytes(all_cells))
+
+        except ValueError:
+            show_error(self.app,
+                       "Critical Error!",
+                       "Something went wrong when writing to file",
+                       "The program will close and file might get corrupted")
 
     def expand_cells(self, row, col):
-        # Get the number of rows and columns in the table
         num_rows = len(self.cur_cells)
-        num_cols = len(self.cur_cells[0])
-        self.cur_cells[-1][-1]
-        # If the row and column indices are larger than the size of the table,
-        # we need to expand the table
+
+        # Set last character to null as expanding doesn't work on it
+        self.cur_cells[-1][-1] = '00'
+
+        # If the row or column indices are larger than the size of the cells table,
+        # we need to expand the cells table
         if row >= num_rows:
             # Add rows to the table until it has the desired number of rows
             for i in range(num_rows, row + 1):
@@ -309,8 +317,14 @@ class File:
         if col >= len(self.cur_cells[row]):
             # Add columns to all rows until the table has the desired number of columns
             for i in range(num_rows):
-                while len(self.cur_cells[i]) < 16:
-                    self.cur_cells[i].append('00')
+                # In all rows prior to needed, all 16 cells are filled
+                if i != row:
+                    while len(self.cur_cells[i]) < 16:
+                        self.cur_cells[i].append('00')
+                else:
+                    while len(self.cur_cells[i]) <= col:
+                        self.cur_cells[i].append('00')
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

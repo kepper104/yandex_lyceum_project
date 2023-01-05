@@ -1,6 +1,6 @@
 **TODO**
 
-- Implement generating new cells
+- A warning when closing unsaved file
 - Document everything
 - Presentation
 - Compile into exe

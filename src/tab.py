@@ -1,12 +1,8 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget, QTableWidgetItem, QLabel, QErrorMessage, QMessageBox
-from app import File
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtWidgets import QWidget, QTableWidgetItem, QMessageBox, QTableWidget, QLabel
 
-def next_line():
-    cur = 0
-    while True:
-        yield str(hex(cur))[2:].rjust(5, '0').ljust(6, '0')
-        cur += 1
+from app import File
+from utils import show_error, next_line
 
 
 class TabForm(QWidget):
@@ -38,7 +34,7 @@ class TabForm(QWidget):
         Returns:
             None
         """
-        self.tableWidget = QtWidgets.QTableWidget(self)
+        self.tableWidget = QTableWidget(self)
         self.tableWidget.setGeometry(QtCore.QRect(0, 10, 700, 471))
         font = QtGui.QFont()
         font.setFamily("Courier New")
@@ -49,7 +45,7 @@ class TabForm(QWidget):
         self.tableWidget.setRowCount(0)
         self.tableWidget.setStyleSheet("selection-background-color: rgb(85, 170, 255);")
 
-        self.tableWidget_2 = QtWidgets.QTableWidget(self)
+        self.tableWidget_2 = QTableWidget(self)
         self.tableWidget_2.setGeometry(QtCore.QRect(710, 10, 530, 471))
         font = QtGui.QFont()
         font.setFamily("Courier New")
@@ -60,6 +56,7 @@ class TabForm(QWidget):
         self.tableWidget_2.setRowCount(9999)
         self.tableWidget_2.resizeColumnsToContents()
         self.tableWidget_2.setStyleSheet("selection-background-color: rgb(85, 170, 255);")
+        self.tableWidget_2.setEditTriggers(QTableWidget.NoEditTriggers)
 
 
     def loadfile(self):
@@ -68,8 +65,7 @@ class TabForm(QWidget):
 
         Parameters:
             self
-            name (str): name of the file to open
-            parent_tab (TabForm): parent tab
+
         Returns:
             None
         """
@@ -83,6 +79,7 @@ class TabForm(QWidget):
         for i in range(headers_len):
             headers_v.append(next(n))
         self.tableWidget.setRowCount(headers_len)
+        self.tableWidget_2.setRowCount(headers_len)
         self.tableWidget.setHorizontalHeaderLabels(headers_h)
         self.tableWidget.resizeColumnsToContents()
         self.tableWidget.setVerticalHeaderLabels(headers_v)
@@ -101,7 +98,7 @@ class TabForm(QWidget):
         for index, i in enumerate(letter_cells):
             self.tableWidget_2.setItem(index // 16, index % 16, QTableWidgetItem(i))
 
-        print("loaded")
+
     def reload_file(self):
         headers_h, cur_cells, letter_cells = self.file.get_data()
 
@@ -122,14 +119,17 @@ class TabForm(QWidget):
                 self.file.change_file(row, col, new_item)
                 self.reload_file()
             except IndexError:
-                self.show_error("Cell position is not valid!", "Changes will not be saved", "Input Error!")
+                # self.show_error("Cell position is not valid!", "Changes will not be saved", "Input Error!")
                 self.file.expand_cells(row, col)
                 print(self.file.cur_cells)
                 self.file.change_file(row, col, new_item)
                 self.reload_file()
                 # self.reload_file()
             except ValueError:
-                self.show_error("You hex number is not valid!", "Reverting to previous cell value", "Input Error!")
+                show_error(self.app,
+                            "Input Error!",
+                            "You hex number is not valid!",
+                            "Reverting to previous cell value")
                 self.tableWidget.setItem(row, col, QTableWidgetItem(self.file.cur_cells[row][col]))
 
 
@@ -138,7 +138,7 @@ class TabForm(QWidget):
         self.tableWidget.setCurrentCell(row, col)
         self.tableWidget_2.setCurrentCell(row, col)
         print(row, col)
-    def show_error(self, text, inf_text, title):
+    def show_error(self,title,  text, inf_text):
         self.error = QMessageBox()
         self.error.setIcon(QMessageBox.Critical)
         self.error.setText(text)
@@ -154,9 +154,9 @@ class ExampleTab(QWidget):
 
     def initUI(self):
         self.resize(490, 140)
-        self.centralwidget = QtWidgets.QWidget(self)
+        self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
-        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label = QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(10, 10, 481, 31))
         font = QtGui.QFont()
         font.setFamily("Arial")
