@@ -1,9 +1,10 @@
 import sys
 
 import tab
+from utils import WarningWindow
+
 from PyQt5 import uic, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from utils import WarningWindow
 
 # High Windows Scaling Fix
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):

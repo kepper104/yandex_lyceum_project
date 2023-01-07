@@ -73,9 +73,7 @@ class TabForm(QWidget):
             None
         """
         headers_h, cur_cells, letter_cells = self.file.get_data()
-        headers_len = len(cur_cells)
-        if headers_len <= 1:
-            headers_len = 1000
+        headers_len = len(cur_cells) + 9999
         headers_v = []
         n = next_line()
 
