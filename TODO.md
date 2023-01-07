@@ -1,5 +1,3 @@
 **TODO**
 
-- Presentation
-- Compile into exe
-- Publish
+All Done!
